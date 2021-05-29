@@ -86,6 +86,9 @@ import (
 	chainbkeeper "github.com/user/chainb/x/chainb/keeper"
 	chainbtypes "github.com/user/chainb/x/chainb/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+	"github.com/user/chainb/x/testsuit1"
+	testsuit1keeper "github.com/user/chainb/x/testsuit1/keeper"
+	testsuit1types "github.com/user/chainb/x/testsuit1/types"
 )
 
 const Name = "chainb"
@@ -133,6 +136,7 @@ var (
 		vesting.AppModuleBasic{},
 		chainb.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
+		testsuit1.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -200,6 +204,8 @@ type App struct {
 
 	chainbKeeper chainbkeeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
+	ScopedTestsuit1Keeper capabilitykeeper.ScopedKeeper
+	testsuit1Keeper       testsuit1keeper.Keeper
 
 	// the module manager
 	mm *module.Manager
@@ -230,6 +236,7 @@ func New(
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
 		chainbtypes.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
+		testsuit1types.StoreKey,
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
@@ -324,6 +331,17 @@ func New(
 	)
 
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
+	scopedTestsuit1Keeper := app.CapabilityKeeper.ScopeToModule(testsuit1types.ModuleName)
+	app.ScopedTestsuit1Keeper = scopedTestsuit1Keeper
+	app.testsuit1Keeper = *testsuit1keeper.NewKeeper(
+		appCodec,
+		keys[testsuit1types.StoreKey],
+		keys[testsuit1types.MemStoreKey],
+		app.IBCKeeper.ChannelKeeper,
+		&app.IBCKeeper.PortKeeper,
+		scopedTestsuit1Keeper,
+	)
+	testsuit1Module := testsuit1.NewAppModule(appCodec, app.testsuit1Keeper)
 
 	app.GovKeeper = govkeeper.NewKeeper(
 		appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
@@ -334,6 +352,7 @@ func New(
 	ibcRouter := porttypes.NewRouter()
 	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 	// this line is used by starport scaffolding # ibc/app/router
+	ibcRouter.AddRoute(testsuit1types.ModuleName, testsuit1Module)
 	app.IBCKeeper.SetRouter(ibcRouter)
 
 	/****  Module Options ****/
@@ -367,6 +386,7 @@ func New(
 		transferModule,
 		chainb.NewAppModule(appCodec, app.chainbKeeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
+		testsuit1Module,
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -401,6 +421,7 @@ func New(
 		ibctransfertypes.ModuleName,
 		chainbtypes.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
+		testsuit1types.ModuleName,
 	)
 
 	app.mm.RegisterInvariants(&app.CrisisKeeper)
@@ -583,6 +604,7 @@ func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyA
 	paramsKeeper.Subspace(ibctransfertypes.ModuleName)
 	paramsKeeper.Subspace(ibchost.ModuleName)
 	// this line is used by starport scaffolding # stargate/app/paramSubspace
+	paramsKeeper.Subspace(testsuit1types.ModuleName)
 
 	return paramsKeeper
 }

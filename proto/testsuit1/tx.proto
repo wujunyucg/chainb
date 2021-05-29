@@ -1,0 +1,54 @@
+syntax = "proto3";
+package user.chainb.testsuit1;
+
+// this line is used by starport scaffolding # proto/tx/import
+
+option go_package = "github.com/user/chainb/x/testsuit1/types";
+
+// Msg defines the Msg service.
+service Msg {
+    // this line is used by starport scaffolding # proto/tx/rpc
+  rpc SendIbcDataInfo(MsgSendIbcDataInfo) returns (MsgSendIbcDataInfoResponse);
+  rpc CreateDataInfo(MsgCreateDataInfo) returns (MsgCreateDataInfoResponse);
+  rpc UpdateDataInfo(MsgUpdateDataInfo) returns (MsgUpdateDataInfoResponse);
+  rpc DeleteDataInfo(MsgDeleteDataInfo) returns (MsgDeleteDataInfoResponse);
+}
+
+// this line is used by starport scaffolding # proto/tx/message
+message MsgSendIbcDataInfo {
+  string sender = 1;
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+  string dataIndex = 5;
+  string data = 6;
+}
+
+message MsgSendIbcDataInfoResponse {
+}
+
+message MsgCreateDataInfo {
+  string creator = 1;
+  string dataIndex = 2;
+  string data = 3;
+}
+
+message MsgCreateDataInfoResponse {
+  uint64 id = 1;
+}
+
+message MsgUpdateDataInfo {
+  string creator = 1;
+  uint64 id = 2;
+  string dataIndex = 3;
+  string data = 4;
+}
+
+message MsgUpdateDataInfoResponse { }
+
+message MsgDeleteDataInfo {
+  string creator = 1;
+  uint64 id = 2;
+}
+
+message MsgDeleteDataInfoResponse { }

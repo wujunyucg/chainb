@@ -1,0 +1,13 @@
+syntax = "proto3";
+package user.chainb.testsuit1;
+
+option go_package = "github.com/user/chainb/x/testsuit1/types";
+
+import "gogoproto/gogo.proto";
+
+message ReceiveData {
+  string index = 2;
+  string dataIndex = 3; 
+  string data = 4; 
+  string chain = 5; 
+}
